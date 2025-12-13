@@ -4,8 +4,8 @@ import 'package:flutter_niimbot/flutter_niimbot.dart';
 import 'package:image/image.dart' as img;
 import 'package:flutter_niimbot/image_encoder.dart';
 import 'package:flutter_niimbot/print_tasks/b1_print_task.dart';
-import 'dart:typed_data';
-import 'dart:ui' as ui;
+import 'package:flutter_niimbot/packets/packet_generator.dart';
+import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 
 void main() {
   runApp(const MyApp());
@@ -19,14 +19,21 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  List<Map<String, String>> _devices = [];
+  List<ScanResult> _devices = [];
   String? _connectedDeviceId;
   bool _isScanning = false;
   String _log = "";
+  StreamSubscription? _scanSub;
 
   @override
   void initState() {
     super.initState();
+  }
+  
+  @override
+  void dispose() {
+    _scanSub?.cancel();
+    super.dispose();
   }
 
   void _logMsg(String msg) {
@@ -43,16 +50,20 @@ class _MyAppState extends State<MyApp> {
     });
     
     try {
-      final devices = await Niimbot.scan();
-      setState(() {
-        _devices = devices;
+      _scanSub = Niimbot.scanResults.listen((results) {
+         setState(() {
+           _devices = results;
+         });
       });
-      _logMsg("Found ${devices.length} devices");
+      
+      await Niimbot.startScan();
+      _logMsg("Scanning started...");
     } catch (e) {
       _logMsg("Scan failed: $e");
     } finally {
-      setState(() {
-        _isScanning = false;
+      // Auto stop handled by timeout in lib, but we update UI
+      Future.delayed(Duration(seconds: 5), () {
+         if (mounted) setState(() => _isScanning = false);
       });
     }
   }
@@ -61,15 +72,18 @@ class _MyAppState extends State<MyApp> {
     try {
       _logMsg("Connecting to $deviceId...");
       await Niimbot.connect(deviceId);
+      
+      // Handshake / Connect Packet
+      _logMsg("Sending Connect Packet...");
+      await PacketGenerator.connect(Niimbot.sendPacket);
+      
       setState(() {
         _connectedDeviceId = deviceId;
       });
       _logMsg("Connected!");
       
-      // Listen to events
-      Niimbot.events.listen((event) {
-        // _logMsg("Event: $event"); 
-        // Too spammy if printing
+      Niimbot.packets.listen((p) {
+         // _logMsg("Rx Cmd: ${p['cmd']}");
       });
       
     } catch (e) {
@@ -94,12 +108,9 @@ class _MyAppState extends State<MyApp> {
     
     try {
       _logMsg("Generating image...");
-      // Create a simple image
       final image = img.Image(width: 384, height: 200);
       img.fill(image, color: img.ColorRgb8(255, 255, 255));
-      
-      // Draw text
-      img.drawString(image, 'Hello Niimbot!', font: img.arial24, x: 50, y: 50, color: img.ColorRgb8(0, 0, 0));
+      img.drawString(image, 'Flutter Blue Plus!', font: img.arial24, x: 50, y: 50, color: img.ColorRgb8(0, 0, 0));
       img.drawRect(image, x1: 10, y1: 10, x2: 370, y2: 190, color: img.ColorRgb8(0, 0, 0));
       
       _logMsg("Encoding...");
@@ -120,7 +131,7 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
-          title: const Text('Niimbot Flutter'),
+          title: const Text('Niimbot FBP'),
         ),
         body: Column(
           children: [
@@ -145,9 +156,9 @@ class _MyAppState extends State<MyApp> {
                 itemBuilder: (context, index) {
                   final d = _devices[index];
                   return ListTile(
-                    title: Text(d['name'] ?? "Unknown"),
-                    subtitle: Text(d['id'] ?? ""),
-                    onTap: () => _connect(d['id']!),
+                    title: Text(d.device.platformName.isNotEmpty ? d.device.platformName : "Unknown"),
+                    subtitle: Text(d.device.remoteId.toString()),
+                    onTap: () => _connect(d.device.remoteId.str),
                   );
                 },
               ),
