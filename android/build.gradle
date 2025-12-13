@@ -2,14 +2,16 @@ group 'com.example.flutter_niimbot'
 version '1.0-SNAPSHOT'
 
 buildscript {
-    ext.kotlin_version = '1.7.10'
+    ext.kotlin_version = '1.9.10'
     repositories {
         google()
         mavenCentral()
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.3.0'
+        // Plugin Gradle Android
+        classpath 'com.android.tools.build:gradle:8.1.1'
+        // Plugin Kotlin
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 }
@@ -25,24 +27,24 @@ apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 
 android {
-    if (project.android.hasProperty("namespace")) {
-        namespace 'com.example.flutter_niimbot'
-    }
-    
+    namespace 'com.example.flutter_niimbot'
     compileSdkVersion 34
 
     defaultConfig {
-        minSdkVersion 19
+        minSdkVersion 21
     }
 
+    // --- BAGIAN PENTING YANG DIPERBAIKI ---
+    // Menyamakan versi Java dan Kotlin ke Versi 17
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
 
     kotlinOptions {
-        jvmTarget = '1.8'
+        jvmTarget = '17'
     }
+    // --------------------------------------
 
     sourceSets {
         main.java.srcDirs += 'src/main/kotlin'
@@ -50,5 +52,5 @@ android {
 }
 
 dependencies {
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
 }
