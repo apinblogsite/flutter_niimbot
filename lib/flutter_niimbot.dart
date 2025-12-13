@@ -31,7 +31,7 @@ class Niimbot {
     // For API simplicity, let's assume we scan or use a known list.
     // But `connect(String id)` implies we might need to recreate the object.
     
-    final device = BluetoothDevice.fromId(deviceId);
+    final device = BluetoothDevice(remoteId: DeviceIdentifier(deviceId));
     
     // 2. Connect
     await device.connect(autoConnect: false);
