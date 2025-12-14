@@ -45,5 +45,21 @@ class RequestCommandId {
 
 class ResponseCommandId {
   static const int inConnect = 0xc2;
-  // ... other response IDs can be added as needed for parsing
+  static const int inPrinterStatusData = 0xb5; // Fix untuk Error 'inPrinterStatusData'
+
+  // Printer Info & Properties (Sub-IDs dari response 0x40/0x41)
+  static const int inPrinterInfoDensity = 0x41; // Decimal 65
+  static const int inPrinterInfoLabelType = 0x43; // Decimal 67
+  static const int inPrinterInfoLanguage = 0x46; // Decimal 70
+  static const int inPrinterInfoPrinterCode = 0x48; // Decimal 72
+  static const int inPrinterInfoChargeLevel = 0x4a; // Fix untuk Error 'inPrinterInfoChargeLevel'
+  static const int inPrinterInfoSerialNumber = 0x4b; // Decimal 75
+  static const int inPrinterInfoHardWareVersion = 0x4c; // Decimal 76
+  static const int inPrinterInfoBluetoothAddress = 0x4d; // Decimal 77
+
+  // Error & Status Lainnya
+  static const int inPrinterCheckLine = 0xd3; // Decimal 211
+  static const int inPrintError = 0xdb; // Decimal 219
+  static const int inPrinterPageIndex = 0xe0; // Decimal 224
+  static const int inResetTimeout = 0xc6; // Decimal 198
 }
