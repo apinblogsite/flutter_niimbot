@@ -19,7 +19,7 @@ Currently optimized for **Niimbot B1**, but architecture allows supporting other
     dependencies:
       flutter_niimbot:
         git:
-          url: https://github.com/yourusername/flutter_niimbot.git
+          url: https://github.com/apinblosite/flutter_niimbot.git
     ```
 
 2.  **Android Permissions**:
