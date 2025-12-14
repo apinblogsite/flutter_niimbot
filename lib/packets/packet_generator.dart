@@ -1,4 +1,5 @@
 import 'dart:typed_data';
+import 'package:flutter_niimbot/packets/constants.dart';
 import 'package:flutter_niimbot/packets/commands.dart';
 
 class PacketGenerator {
@@ -64,12 +65,14 @@ class PacketGenerator {
     bytes.addAll(data);
     await send(RequestCommandId.printBitmapRow, Uint8List.fromList(bytes));
   }
+  
+  // --- Status Commands ---
+  
+  static Future<void> getPrinterStatusData(Function(int, Uint8List) send) async {
+     await send(RequestCommandId.printerStatusData, Uint8List.fromList([1]));
+  }
 
   static List<int> countPixelsForBitmapPacket(Uint8List buf, int printheadPixels) {
-     // Simplified logic based on Utils.ts
-     // mode = auto -> split or total
-     // printheadPixels (e.g. 384)
-     
      int chunkSize = (printheadPixels / 8 / 3).floor();
      bool split = buf.length <= chunkSize * 3;
      
@@ -87,11 +90,9 @@ class PacketGenerator {
            }
          }
        }
-       // Clamp to 255 to avoid overflow issues (warn in TS)
        for(int k=0;k<3;k++) if(parts[k] > 255) parts[k] = 255;
        return parts;
      } else {
-       // Total mode
        int total = 0;
        for (int b in buf) {
          for (int bit = 0; bit < 8; bit++) {
