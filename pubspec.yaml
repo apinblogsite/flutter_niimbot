@@ -1,29 +1,24 @@
 name: flutter_niimbot
-description: A new Flutter plugin project.
-version: 0.0.1
+description: Flutter library for BLE printing with NIIMBOT thermal printers. Supports 85+ printer models with automatic detection and rich content rendering.
+version: 1.0.1
 homepage: 
 
 environment:
   sdk: '>=3.0.0 <4.0.0'
-  flutter: ">=3.3.0"
+  flutter: ">=3.0.0"
 
 dependencies:
   flutter:
     sdk: flutter
-  plugin_platform_interface: ^2.0.2
-  image: ^4.0.17
-  flutter_blue_plus: ^1.30.0
+  flutter_blue_plus: ^1.36.8
+  http: ^1.6.0
+  image: ^4.7.1
+  qr: ^3.0.2
+  barcode: ^2.2.9
+  synchronized: ^3.4.0
+  crypto: ^3.0.7
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^2.0.0
-
-flutter:
-  plugin:
-    platforms:
-      android:
-        package: com.example.flutter_niimbot
-        pluginClass: FlutterNiimbotPlugin
-      ios:
-        pluginClass: FlutterNiimbotPlugin
+  flutter_lints: ^6.0.0
