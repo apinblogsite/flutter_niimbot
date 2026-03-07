@@ -1,6 +1,6 @@
 name: flutter_niimbot
 description: Flutter library for BLE printing with NIIMBOT thermal printers. Supports 85+ printer models with automatic detection and rich content rendering.
-version: 1.0.1
+version: 2.0.0
 homepage: 
 
 environment:
