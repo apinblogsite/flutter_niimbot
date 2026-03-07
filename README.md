@@ -131,12 +131,12 @@ The `orientation` parameter allows you to effortlessly design for different labe
 
 ```dart
 // Portrait (Default) - Ideal for standard vertical labels
-final portraitPage = PrintPage(400, 240, orientation: PageOrientation.portrait);
+final portraitPage = PrintPage(400, 240, PageOrientation.portrait);
 portraitPage.addText('Item Name', TextOptions(x: 200, y: 120));
 
 // Landscape - Ideal for printing horizontal designs on vertical paper
 // Note: Dimensions (240x400) automatically flip to a 400x240 canvas and rotate content 90°
-final landscapePage = PrintPage(240, 400, orientation: PageOrientation.landscape);
+final landscapePage = PrintPage(240, 400, PageOrientation.landscape);
 landscapePage.addText('Item Name', TextOptions(
   x: 200, // Coordinates remain consistent with the 400x240 layout
   y: 120,
