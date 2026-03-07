@@ -97,12 +97,16 @@
     },
     {
       "name": "flutter_niimbot",
-      "version": "0.0.1",
+      "version": "2.0.0",
       "dependencies": [
+        "barcode",
+        "crypto",
         "flutter",
         "flutter_blue_plus",
+        "http",
         "image",
-        "plugin_platform_interface"
+        "qr",
+        "synchronized"
       ]
     },
     {
@@ -312,10 +316,33 @@
       ]
     },
     {
-      "name": "plugin_platform_interface",
-      "version": "2.1.8",
+      "name": "crypto",
+      "version": "3.0.7",
       "dependencies": [
-        "meta"
+        "typed_data"
+      ]
+    },
+    {
+      "name": "synchronized",
+      "version": "3.4.0",
+      "dependencies": []
+    },
+    {
+      "name": "barcode",
+      "version": "2.2.9",
+      "dependencies": [
+        "meta",
+        "qr"
+      ]
+    },
+    {
+      "name": "http",
+      "version": "1.6.0",
+      "dependencies": [
+        "async",
+        "http_parser",
+        "meta",
+        "web"
       ]
     },
     {
@@ -393,6 +420,13 @@
       ]
     },
     {
+      "name": "plugin_platform_interface",
+      "version": "2.1.8",
+      "dependencies": [
+        "meta"
+      ]
+    },
+    {
       "name": "web",
       "version": "1.1.1",
       "dependencies": []
@@ -431,6 +465,23 @@
         "ffi",
         "meta",
         "path"
+      ]
+    },
+    {
+      "name": "typed_data",
+      "version": "1.4.0",
+      "dependencies": [
+        "collection"
+      ]
+    },
+    {
+      "name": "http_parser",
+      "version": "4.1.2",
+      "dependencies": [
+        "collection",
+        "source_span",
+        "string_scanner",
+        "typed_data"
       ]
     },
     {

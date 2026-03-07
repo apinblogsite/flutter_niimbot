@@ -35,8 +35,7 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
   flutter_niimbot:
-    git:
-      url: https://github.com/apinblogsite/flutter_niimbot.git
+    path: ..
   image: ^4.0.17
   flutter_blue_plus: ^1.30.0
   permission_handler: ^10.2.0

@@ -72,13 +72,16 @@ class _HomeScreenState extends State<HomeScreen> {
               FilledButton.icon(
                 onPressed: controller.isConnected
                     ? () {
-                        if (_idController.text.isEmpty || _keteranganController.text.isEmpty) {
+                        if (_idController.text.isEmpty ||
+                            _keteranganController.text.isEmpty) {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text("Please fill all fields")),
+                            const SnackBar(
+                                content: Text("Please fill all fields")),
                           );
                           return;
                         }
-                        controller.printLabel(_idController.text, _keteranganController.text);
+                        controller.printLabel(
+                            _idController.text, _keteranganController.text);
                       }
                     : null,
                 icon: const Icon(Icons.print),
@@ -101,7 +104,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   reverse: true,
                   child: Text(
                     controller.log,
-                    style: const TextStyle(fontFamily: 'monospace', fontSize: 12),
+                    style:
+                        const TextStyle(fontFamily: 'monospace', fontSize: 12),
                   ),
                 ),
               ),
@@ -112,7 +116,8 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildConnectionSection(BuildContext context, PrinterController controller) {
+  Widget _buildConnectionSection(
+      BuildContext context, PrinterController controller) {
     return Card(
       elevation: 2,
       child: Padding(
@@ -126,15 +131,18 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: Row(
                     children: [
                       Icon(
-                        controller.isConnected ? Icons.bluetooth_connected : Icons.bluetooth_disabled,
-                        color: controller.isConnected ? Colors.green : Colors.grey,
+                        controller.isConnected
+                            ? Icons.bluetooth_connected
+                            : Icons.bluetooth_disabled,
+                        color:
+                            controller.isConnected ? Colors.green : Colors.grey,
                       ),
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
                           controller.isConnected
-                            ? "Connected: ${controller.connectedDeviceId}"
-                            : "Disconnected",
+                              ? "Connected: ${controller.connectedDevice?.platformName}"
+                              : "Disconnected",
                           style: const TextStyle(fontWeight: FontWeight.bold),
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -150,12 +158,14 @@ class _HomeScreenState extends State<HomeScreen> {
                   )
                 else
                   FilledButton.tonal(
-                    onPressed: controller.isScanning ? controller.stopScan : controller.startScan,
-                    child: Text(controller.isScanning ? "Stop Scan" : "Scan"),
+                    onPressed:
+                        controller.isScanning ? null : controller.startScan,
+                    child: Text(controller.isScanning ? "Scanning..." : "Scan"),
                   ),
               ],
             ),
-            if (!controller.isConnected && (controller.isScanning || controller.devices.isNotEmpty)) ...[
+            if (!controller.isConnected &&
+                (controller.isScanning || controller.devices.isNotEmpty)) ...[
               const SizedBox(height: 16),
               const Divider(),
               ConstrainedBox(
@@ -165,13 +175,15 @@ class _HomeScreenState extends State<HomeScreen> {
                   itemCount: controller.devices.length,
                   itemBuilder: (context, index) {
                     final d = controller.devices[index];
-                    final name = d.device.platformName.isNotEmpty ? d.device.platformName : "Unknown Device";
+                    final name = d.platformName.isNotEmpty
+                        ? d.platformName
+                        : "Unknown Device";
                     return ListTile(
                       dense: true,
                       title: Text(name),
-                      subtitle: Text(d.device.remoteId.toString()),
+                      subtitle: Text(d.remoteId.toString()),
                       trailing: const Icon(Icons.chevron_right),
-                      onTap: () => controller.connect(d.device.remoteId.str),
+                      onTap: () => controller.connect(d),
                     );
                   },
                 ),
