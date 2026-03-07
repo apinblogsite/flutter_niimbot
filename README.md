@@ -1,41 +1,41 @@
-# Flutter NiimBlue Library
+# Flutter Niimbot (Pure Dart Edition)
 
-A Flutter library for Bluetooth LE printing with NIIMBOT thermal printers. Features automatic printer model detection, rich content rendering (text, QR codes, barcodes, images), and comprehensive print control.
+A robust, cross-platform Flutter library designed for seamless Bluetooth Low Energy (BLE) printing with NIIMBOT thermal printers. Operating entirely in pure Dart, this package supports automatic printer model detection and offers extensive capabilities for rendering rich content like text, QR codes, barcodes, and images on over 85+ printer models.
 
-## ✨ Features
+## ✨ Key Features
 
-- 🔍 **Auto-detect printer models** - Automatically selects the correct print task based on connected printer
-- 📱 **BLE Communication** - Direct Bluetooth Low Energy connection to NIIMBOT printers
-- 🎨 **Rich Content Support**:
-  - Text rendering with Flutter Canvas
-  - QR codes with error correction levels
-  - Barcodes (EAN13, CODE128)
-  - Images from files or memory
-  - Lines and custom pixel data
-- 🖼️ **Print Preview** - Generate PNG previews before printing
-- 📏 **Flexible Layout** - Pixel-perfect positioning with alignment options
-- 🔄 **Multiple Printer Support** - B1, B21, D110, D11 and more
+- 🔍 **Smart Auto-Detection** - Intelligently identifies the connected NIIMBOT printer model and selects the appropriate print protocol.
+- 📱 **Pure Dart BLE** - Connects directly to printers using pure Dart over BLE, ensuring broad multi-platform compatibility (Mobile & Web).
+- 🎨 **Advanced Content Rendering**:
+  - Render crisp text using Flutter Canvas.
+  - Generate QR codes with adjustable error correction levels.
+  - Print barcodes (supports EAN13, CODE128).
+  - Print images seamlessly from local files, memory, or network URLs.
+  - Draw custom pixel arrays and precise lines.
+- 🖼️ **Label Preview** - Generate a PNG preview of your label layout before sending it to the printer.
+- 📏 **Pixel-Perfect Layouts** - Fine-tune positioning with detailed X/Y coordinates and various alignment modes.
+- 🔄 **Broad Hardware Support** - Fully compatible with popular models like B1, B21, D110, D11, and many more.
 
 ## 📦 Installation
 
-Add to your `pubspec.yaml`:
+Include the package in your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  flutter_niimbot: ^1.0.0
+  flutter_niimbot: ^1.0.1
 ```
 
-Then run:
+Then fetch the dependencies:
 
 ```bash
 flutter pub get
 ```
 
-## 🔧 Setup
+## 🔧 Platform Configuration
 
 ### Android Setup
 
-Add permissions to `android/app/src/main/AndroidManifest.xml`:
+You must declare the required Bluetooth permissions in `android/app/src/main/AndroidManifest.xml`:
 
 ```xml
 <uses-permission android:name="android.permission.BLUETOOTH" />
@@ -46,7 +46,7 @@ Add permissions to `android/app/src/main/AndroidManifest.xml`:
 <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 ```
 
-Set minimum SDK version to 21 in `android/app/build.gradle`:
+Ensure your `minSdkVersion` is at least 21 in `android/app/build.gradle`:
 
 ```gradle
 android {
@@ -58,55 +58,55 @@ android {
 
 ### iOS Setup
 
-Add to `ios/Runner/Info.plist`:
+Update your `ios/Runner/Info.plist` with the necessary privacy descriptions:
 
 ```xml
 <key>NSBluetoothAlwaysUsageDescription</key>
-<string>App needs Bluetooth to connect to NIIMBOT printers</string>
+<string>This app requires Bluetooth access to connect with NIIMBOT printers.</string>
 <key>NSBluetoothPeripheralUsageDescription</key>
-<string>App needs Bluetooth to connect to NIIMBOT printers</string>
+<string>This app requires Bluetooth access to connect with NIIMBOT printers.</string>
 ```
 
-Set minimum iOS version to 12.0 in `ios/Podfile`:
+Your `ios/Podfile` should specify a minimum iOS version of 12.0:
 
 ```ruby
 platform :ios, '12.0'
 ```
 
-Install CocoaPods dependencies:
+Don't forget to install the iOS pods:
 
 ```bash
 cd ios && pod install
 ```
 
-## 🚀 Quick Start
+## 🚀 Getting Started
 
-### Basic Printing
+### Your First Print Job
 
 ```dart
 import 'package:flutter_niimbot/flutter_niimbot.dart';
 
-// 1. Connect to printer
+// 1. Establish a connection
 final client = NiimbotBluetoothClient();
-await client.connect(); // Auto-scans and connects to first NIIMBOT device
+await client.connect(); // Automatically scans and connects to the nearest NIIMBOT printer
 
-// 2. Create print task (auto-detects printer model)
+// 2. Prepare the print task (auto-configured for the detected model)
 client.stopHeartbeat();
-client.setPacketInterval(0); // Fast printing
+client.setPacketInterval(0); // Maximize print speed
 final task = client.createPrintTask(PrintOptions(
   totalPages: 1,
-  density: 3,
+  density: 3, // Print density level
   labelType: 1,
 ));
 
 if (task == null) {
-  throw Exception('Printer model not detected');
+  throw Exception('Failed to detect a compatible printer model');
 }
 
-// 3. Build page content
-final page = PrintPage(400, 240); // width x height in pixels
+// 3. Design your label layout
+final page = PrintPage(400, 240); // Define label canvas dimensions (width x height)
 
-page.addText('Hello NIIMBOT!', TextOptions(
+page.addText('Hello, NIIMBOT!', TextOptions(
   x: 192,
   y: 100,
   fontSize: 24,
@@ -114,366 +114,187 @@ page.addText('Hello NIIMBOT!', TextOptions(
   vAlign: VAlignment.middle,
 ));
 
-// 4. Print
+// 4. Execute the print command
 await task.printInit();
 await task.printPage(page.toEncodedImage(), 1);
 await task.waitForFinished();
+
+// Resume heartbeat monitoring after printing
 client.startHeartbeat();
 ```
 
-## 📖 Usage Examples
+## 📖 Feature Examples
 
-### Page Orientation
+### Canvas Orientation
 
-Use `orientation` parameter to automatically rotate all content for landscape printing:
+The `orientation` parameter allows you to effortlessly design for different label placements:
 
 ```dart
-// Portrait mode (default) - for vertical labels
+// Portrait (Default) - Ideal for standard vertical labels
 final portraitPage = PrintPage(400, 240, orientation: PageOrientation.portrait);
-portraitPage.addText('Product Name', TextOptions(x: 200, y: 120));
+portraitPage.addText('Item Name', TextOptions(x: 200, y: 120));
 
-// Landscape mode - for horizontal labels on vertical paper
-// Dimensions are AUTO-SWAPPED: 240x400 becomes 400x240 canvas + 90° rotation
+// Landscape - Ideal for printing horizontal designs on vertical paper
+// Note: Dimensions (240x400) automatically flip to a 400x240 canvas and rotate content 90°
 final landscapePage = PrintPage(240, 400, orientation: PageOrientation.landscape);
-landscapePage.addText('Product Name', TextOptions(
-  x: 200, // Same coordinates work!
-  y: 120, // Canvas is 400x240 (swapped) + rotated 90°
+landscapePage.addText('Item Name', TextOptions(
+  x: 200, // Coordinates remain consistent with the 400x240 layout
+  y: 120,
 ));
 ```
 
-**How it works:**
-- Physical paper: 240px width × 400px height (vertical)
-- `PrintPage(240, 400, orientation: PageOrientation.landscape)`:
-  - ✅ Canvas dimensions: **400×240** (auto-swapped)
-  - ✅ Content rotated: **90°** clockwise
-  - ✅ Result: Horizontal content on vertical paper
-  - ✅ Same coordinates as `PrintPage(400, 240, orientation: PageOrientation.portrait)`
-
-### Text Rendering
+### Rendering Text
 
 ```dart
 final page = PrintPage(400, 240);
 
-// Simple text with default font
+// Standard text placement
 page.addText('NIIMBOT PRINTER', TextOptions(
-  x: 192,
-  y: 50,
+  x: 192, y: 50,
   fontSize: 24,
   align: HAlignment.center,
   vAlign: VAlignment.middle,
 ));
 
-// Bold text with rotation
-page.addText('Rotated Text', TextOptions(
-  x: 192,
-  y: 100,
+// Bold, rotated text
+page.addText('Angled Text', TextOptions(
+  x: 192, y: 100,
   fontSize: 20,
   fontWeight: FontWeight.bold,
   align: HAlignment.center,
   vAlign: VAlignment.middle,
-  rotate: 45, // Additional rotation (on top of page orientation)
+  rotate: 45, // Rotates text 45 degrees
 ));
 
-// Custom font
-page.addText('Custom Font Text', TextOptions(
-  x: 100,
-  y: 180,
+// Using custom fonts
+page.addText('Custom Font Styling', TextOptions(
+  x: 100, y: 180,
   fontSize: 16,
   fontFamily: 'Roboto',
   align: HAlignment.left,
 ));
 ```
 
-### QR Code
+### QR Codes & Barcodes
 
 ```dart
+// Generating a QR Code
 page.addQR('https://github.com', QROptions(
-  x: 192,
-  y: 100,
-  width: 150,
-  height: 150,
+  x: 192, y: 100,
+  width: 150, height: 150,
   align: HAlignment.center,
   vAlign: VAlignment.middle,
-  ecl: QRErrorCorrectLevel.M, // L, M, Q, H
-  rotate: 90, // Optional: rotate 90 degrees
+  ecl: QRErrorCorrectLevel.M, // Adjust error correction (L, M, Q, H)
 ));
-```
 
-### Barcode
-
-```dart
+// Generating a Barcode
 page.addBarcode('123456789012', BarcodeOptions(
-  encoding: BarcodeEncoding.ean13, // or code128
-  x: 192,
-  y: 150,
-  width: 200,
-  height: 60,
+  encoding: BarcodeEncoding.ean13, // Code128 also supported
+  x: 192, y: 150,
+  width: 200, height: 60,
   align: HAlignment.center,
   vAlign: VAlignment.middle,
-  rotate: 180, // Optional: rotate 180 degrees
 ));
 ```
 
-### Image from File
+### Printing Images (File & Network)
 
 ```dart
 import 'dart:io';
-import 'package:image/image.dart' as img;
-
-final imageBytes = await File('path/to/image.jpg').readAsBytes();
-final image = img.decodeImage(imageBytes)!;
-
-page.addImageFromBuffer(ImageFromBufferOptions(
-  buffer: image,
-  x: 192,
-  y: 100,
-  width: 200,
-  height: 150,
-  align: HAlignment.center,
-  vAlign: VAlignment.middle,
-  threshold: 128, // Grayscale to binary threshold
-  rotate: 270, // Optional: rotate 270 degrees
-));
-```
-
-### Image from Network
-
-```dart
 import 'package:http/http.dart' as http;
 import 'package:image/image.dart' as img;
 
-final response = await http.get(Uri.parse('https://example.com/logo.png'));
-final image = img.decodeImage(response.bodyBytes)!;
+// From Local File
+final localBytes = await File('path/to/logo.png').readAsBytes();
+final localImg = img.decodeImage(localBytes)!;
 
 page.addImageFromBuffer(ImageFromBufferOptions(
-  buffer: image,
-  x: 192,
-  y: 100,
-  width: 150,
-  height: 150,
+  buffer: localImg,
+  x: 192, y: 100,
+  width: 200, height: 150,
+  align: HAlignment.center,
+  vAlign: VAlignment.middle,
+  threshold: 128, // Adjust grayscale conversion threshold
+));
+
+// From Network URL
+final networkResponse = await http.get(Uri.parse('https://example.com/icon.png'));
+final networkImg = img.decodeImage(networkResponse.bodyBytes)!;
+
+page.addImageFromBuffer(ImageFromBufferOptions(
+  buffer: networkImg,
+  x: 192, y: 200,
+  width: 100, height: 100,
   align: HAlignment.center,
   vAlign: VAlignment.middle,
   threshold: 128,
 ));
 ```
 
-### Custom Pixel Data
+### Advanced Graphics (Lines & Custom Pixels)
 
 ```dart
-final heartPixels = [
+// Drawing a line across the label
+page.addLine(LineOptions(
+  x: 10, y: 100,
+  endX: 374, endY: 100,
+  thickness: 2,
+));
+
+// Injecting custom raw pixel arrays (1=black, 0=white)
+final rawPixels = [
   0,0,0,0,1,1,0,0,0,0,1,1,0,0,0,0,
-  0,0,1,1,1,1,1,0,0,1,1,1,1,0,0,0,
-  0,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,
-  // ... (1 = black, 0 = white)
+  // ... pixel data ...
 ];
 
 page.addPixelData(ImageOptions(
-  data: heartPixels,
-  imageWidth: 16,
-  imageHeight: 11,
-  x: 192,
-  y: 100,
-  width: 128, // Scaled width
-  height: 88,
+  data: rawPixels,
+  imageWidth: 16, imageHeight: 11,
+  x: 192, y: 100,
+  width: 128, height: 88,
   align: HAlignment.center,
   vAlign: VAlignment.middle,
-  rotate: 45, // Optional: rotate 45 degrees
 ));
 ```
 
-### Line Drawing
-
-```dart
-page.addLine(LineOptions(
-  x: 10,
-  y: 100,
-  endX: 374,
-  endY: 100,
-  thickness: 2,
-));
-```
-
-### Print Preview
+### Previewing Labels
 
 ```dart
 final page = PrintPage(400, 240);
-page.addQR('Preview Test', QROptions(
+page.addText('Preview Mode', TextOptions(
+  x: 192, y: 100,
+  align: HAlignment.center, vAlign: VAlignment.middle,
+));
+
+// Extracts PNG formatted bytes representing the label
+final previewBytes = await page.toPreviewImage();
+// Display in your app using Image.memory(previewBytes)
+```
+
+## 🎯 Alignment Logic
+
+The rendering engine relies on **reference point alignment**:
+
+```dart
+// Center aligning maps the text's center point perfectly to the x: 192 coordinate.
+page.addText('Perfect Center', TextOptions(
   x: 192,
   y: 100,
   align: HAlignment.center,
   vAlign: VAlignment.middle,
 ));
-
-// Generate PNG bytes
-final pngBytes = await page.toPreviewImage();
-// Display in Image.memory(pngBytes)
 ```
 
-## 🔧 API Reference
+## 🐛 Troubleshooting Guide
 
-### NiimbotBluetoothClient
-
-#### Methods
-
-- `connect({String? deviceId})`: Connect to printer (auto-scan or specific device)
-- `disconnect()`: Disconnect from printer
-- `setOnDisconnect(void Function() callback)`: Set callback for disconnect events
-- `listDevices({Duration? timeout})`: List available printers
-- `listConnectedDevices()`: List already connected printers
-- `createPrintTask(PrintOptions? options)`: Create print task with auto-detection
-- `setPacketInterval(int ms)`: Set delay between packets (0 = fastest)
-- `startHeartbeat()` / `stopHeartbeat()`: Control heartbeat
-
-### PrintPage
-
-#### Constructor
-
-```dart
-PrintPage(int width, int height, {PageOrientation? orientation})
-```
-
-- `width: int` - Page width in pixels
-- `height: int` - Page height in pixels
-- `orientation: PageOrientation?` - Page orientation (default: portrait)
-  - `PageOrientation.portrait`: Normal orientation, canvas dimensions = (width, height)
-  - `PageOrientation.landscape`: **Auto-swaps dimensions** → canvas becomes (height, width) + rotates all content 90° clockwise
-    - Perfect for printing horizontal content on vertical paper
-    - Example: `PrintPage(240, 400, orientation: PageOrientation.landscape)` → 400×240 canvas with 90° rotation
-    - Use same coordinates as `PrintPage(400, 240, orientation: PageOrientation.portrait)`
-
-#### Methods
-
-- `addText(String text, TextOptions options)`
-- `addQR(String text, QROptions options)`
-- `addBarcode(String text, BarcodeOptions options)`
-- `addPixelData(ImageOptions options)`
-- `addImageFromBuffer(ImageFromBufferOptions options)`
-- `addImageFromUri(String uri, ImageFromBufferOptions options)`: Fetch and add image from URL
-- `addLine(LineOptions options)`
-- `toEncodedImage()`: Convert to printer format
-- `toPreviewImage()`: Generate PNG bytes for preview
-
-### Type Definitions
-
-#### PrintOptions
-- `totalPages: int?` - Number of pages to print
-- `density: int?` - Print density (1-5, default: 3, higher = darker)
-- `labelType: int?` - Label type identifier (printer-specific)
-- `statusPollIntervalMs: int?` - Status polling interval in ms (default: 100)
-- `statusTimeoutMs: int?` - Status check timeout in ms (default: 8000)
-
-#### PrintElementOptions (Base)
-All positioning options support:
-- `x: double` - X coordinate in pixels
-- `y: double` - Y coordinate in pixels
-- `width: double?` - Optional width (auto-scales if only one dimension provided)
-- `height: double?` - Optional height (auto-scales if only one dimension provided)
-- `align: HAlignment?` - Horizontal alignment relative to x coordinate
-  - `HAlignment.left`, `HAlignment.center`, `HAlignment.right`
-- `vAlign: VAlignment?` - Vertical alignment relative to y coordinate
-  - `VAlignment.top`, `VAlignment.middle`, `VAlignment.bottom`
-- `rotate: double?` - Rotation angle in degrees (0-360), rotates around element center. This is additional rotation on top of page orientation.
-
-#### TextOptions
-Extends `PrintElementOptions` with:
-- `fontSize: double?` - Font size in pixels (default: 12)
-- `fontFamily: String?` - Font family name (optional, uses system font if not provided)
-- `fontWeight: FontWeight?` - Font weight (optional, uses normal if not provided)
-
-#### QROptions
-Extends `PrintElementOptions` with:
-- `ecl: QRErrorCorrectLevel?` - Error correction level (default: M)
-  - `QRErrorCorrectLevel.L`: Low (~7% correction)
-  - `QRErrorCorrectLevel.M`: Medium (~15% correction)
-  - `QRErrorCorrectLevel.Q`: Quartile (~25% correction)
-  - `QRErrorCorrectLevel.H`: High (~30% correction)
-
-#### BarcodeOptions
-Extends `PrintElementOptions` with:
-- `encoding: BarcodeEncoding?` - Barcode encoding format (default: ean13)
-  - `BarcodeEncoding.ean13`
-  - `BarcodeEncoding.code128`
-
-#### ImageOptions
-Extends `PrintElementOptions` with:
-- `data: List<int>` - 1D array of pixel data (1 = black, 0 = white)
-- `imageWidth: int` - Original image width in pixels
-- `imageHeight: int` - Original image height in pixels
-
-#### ImageFromBufferOptions
-Extends `PrintElementOptions` with:
-- `buffer: img.Image` - Image from package:image
-- `threshold: int?` - Grayscale to binary conversion threshold (0-255, default: 128, lower = darker)
-- Plus all `PrintElementOptions` (x, y, width, height, align, vAlign, rotate)
-
-#### LineOptions
-- `x: double` - Start X coordinate in pixels
-- `y: double` - Start Y coordinate in pixels
-- `endX: double` - End X coordinate in pixels
-- `endY: double` - End Y coordinate in pixels
-- `thickness: double?` - Line thickness in pixels (default: 1)
-
-## 🎯 Alignment System
-
-The library uses **reference point alignment**:
-
-```dart
-// Center text at position (192, 100)
-page.addText('Centered', TextOptions(
-  x: 192,    // Reference X
-  y: 100,    // Reference Y
-  align: HAlignment.center,   // Text center aligns to x
-  vAlign: VAlignment.middle,  // Text middle aligns to y
-));
-
-// Right-bottom align at position (350, 180)
-page.addText('Corner', TextOptions(
-  x: 350,
-  y: 180,
-  align: HAlignment.right,   // Right edge at x=350
-  vAlign: VAlignment.bottom, // Bottom edge at y=180
-));
-```
-
-## 🐛 Troubleshooting
-
-### Bluetooth Connection Issues
-- **Problem**: Cannot find or connect to printer
-- **Solution**:
-  - Ensure Bluetooth is enabled on your device
-  - Make sure printer is powered on and in pairing mode
-  - Check that all required permissions are granted (Bluetooth, Location on Android)
-  - Try `listDevices()` to scan for available printers
-
-### Print Quality Issues
-- **Problem**: Print is too light or too dark
-- **Solution**: Adjust the `density` parameter (1-5, default 3) in `createPrintTask()`
-
-### Image Not Printing Correctly
-- **Problem**: Image appears distorted or incorrect colors
-- **Solution**:
-  - Ensure image dimensions are multiples of 8 pixels for width
-  - Adjust `threshold` parameter (default 128) in `addImageFromBuffer()`
-  - Images are converted to black & white - use high contrast images
-
-### Permission Issues on Android
-- **Problem**: Bluetooth permissions error
-- **Solution**:
-  - Android 12+ requires different permissions - handled automatically
-  - Make sure all permissions are declared in AndroidManifest.xml
-  - Request runtime permissions using `permission_handler` package
-
-### Build Errors
-- **Problem**: Native module errors during build
-- **Solution**:
-  - Run `pod install` in iOS directory: `cd ios && pod install`
-  - For Android, sync gradle after adding dependencies
-  - Clean build: `flutter clean && flutter pub get`
+*   **Printer Not Found?** Ensure Bluetooth is on, location permissions are granted (Android), and the printer is powered on and ready to pair. Use `listDevices()` to debug visible BLE peripherals.
+*   **Faded/Dark Prints?** Modify the `density` property (scale 1-5, default is 3) when initializing your `PrintOptions`.
+*   **Distorted Images?** Make sure image widths are multiples of 8. Tweak the `threshold` parameter to improve the black & white conversion contrast.
 
 ## 📄 License
 
 MIT
 
-## 🙏 Credits
+## 🙏 Acknowledgements
 
-Based on [niimbluelib](https://github.com/MultiMote/niimblue) by MultiMote.
+Architectural foundation inspired by the excellent work in [niimblue](https://github.com/MultiMote/niimblue) by MultiMote.
