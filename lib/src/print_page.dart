@@ -250,6 +250,8 @@ class PrintPage {
     final picture = recorder.endRecording();
     final image = picture.toImageSync(textWidth, textHeight);
     final byteData = await image.toByteData(format: ui.ImageByteFormat.rawRgba);
+    image.dispose();
+    picture.dispose();
 
     if (byteData == null) return;
 
