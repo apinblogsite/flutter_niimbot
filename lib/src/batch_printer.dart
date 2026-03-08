@@ -30,6 +30,7 @@ class NiimbotBatchPrinter {
     }
 
     await task.waitForFinished();
+    await task.printEnd();
     client.startHeartbeat();
   }
 }

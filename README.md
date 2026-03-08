@@ -123,6 +123,78 @@ await task.waitForFinished();
 client.startHeartbeat();
 ```
 
+## 🚀 Batch Printing & Third-Party Integrations
+
+`flutter_niimbot` v2.0.0+ introduces high-level APIs designed to make printing multiple labels directly from your app's data incredibly simple. It introduces a powerful `LabelTemplate` rendering engine and out-of-the-box integrations for Cloud Firestore and PlutoGrid.
+
+### 1. Batch Printing
+
+Print multiple labels in a single, continuous print job without disconnecting or reconnecting to the printer.
+
+```dart
+// Fetch your pre-rendered EncodedImages
+final List<EncodedImage> imagesToPrint = [...];
+
+// Print them all in one job!
+await client.printBatchLabels(imagesToPrint);
+```
+
+### 2. Label Rendering Engine
+
+Instead of drawing labels manually pixel-by-pixel, you can now define a declarative `LabelTemplate` and pass raw data maps to the `LabelRenderer`. The engine will map the data keys to the layout automatically.
+
+```dart
+// 1. Define your template
+final template = LabelTemplate(
+  width: 400,
+  height: 240,
+  elements: [
+    TextElement(x: 10, y: 10, dataKey: 'name', fontSize: 32),
+    TextElement(x: 10, y: 50, dataKey: 'price', fontSize: 24),
+    BarcodeElement(x: 10, y: 100, dataKey: 'barcode', width: 200, height: 60),
+    ImageElement(x: 220, y: 100, dataKey: 'logoBytes', width: 80, height: 80),
+  ],
+);
+
+// 2. Pass a list of raw data
+final List<Map<String, dynamic>> productData = [
+  {"name": "USB Cable", "price": "25000", "barcode": "899123456"},
+  {"name": "Wireless Mouse", "price": "150000", "barcode": "899987654"},
+];
+
+// 3. Batch print the rendered data!
+await client.printBatchData(productData, template);
+```
+
+### 3. Printing From Firestore
+
+If your app uses Firebase, you can fetch an entire collection and print a batch of labels in **one single line of code**.
+
+```dart
+// Ensure you have added `cloud_firestore` to your pubspec.yaml
+
+await client.printBatchFromFirestore(
+  collection: "products", // Your Firestore collection path
+  template: template,     // The LabelTemplate mapping document fields to the label
+);
+```
+
+### 4. Printing From PlutoGrid
+
+If your app uses `pluto_grid` for data tables, you can select rows in the UI and instantly print them as labels.
+
+```dart
+// Ensure you have added `pluto_grid` to your pubspec.yaml
+
+// Access your PlutoGrid state manager rows
+final List<PlutoRow> selectedRows = stateManager.rows;
+
+await client.printFromPlutoGrid(
+  selectedRows,
+  template
+);
+```
+
 ## 📖 Feature Examples
 
 ### Canvas Orientation
@@ -209,7 +281,7 @@ final localBytes = await File('path/to/logo.png').readAsBytes();
 final localImg = img.decodeImage(localBytes)!;
 
 page.addImageFromBuffer(ImageFromBufferOptions(
-  buffer: localImg,
+  buffer: localImg.getBytes(),
   x: 192, y: 100,
   width: 200, height: 150,
   align: HAlignment.center,
@@ -222,7 +294,7 @@ final networkResponse = await http.get(Uri.parse('https://example.com/icon.png')
 final networkImg = img.decodeImage(networkResponse.bodyBytes)!;
 
 page.addImageFromBuffer(ImageFromBufferOptions(
-  buffer: networkImg,
+  buffer: networkImg.getBytes(),
   x: 192, y: 200,
   width: 100, height: 100,
   align: HAlignment.center,
