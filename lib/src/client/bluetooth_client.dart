@@ -67,6 +67,7 @@ class NiimbotBluetoothClient extends NiimbotAbstractClient {
     }
 
     try {
+      // NOTE: `license` is required starting from `flutter_blue_plus: ^2.2.1` because of the `jamcorder` licensing update.
       await _device!.connect(
         timeout: const Duration(milliseconds: connectTimeout), mtu: null,
         license: License.free,

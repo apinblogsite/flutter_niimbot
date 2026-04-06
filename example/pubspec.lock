@@ -416,7 +416,7 @@ packages:
     source: hosted
     version: "2.1.8"
   pluto_grid:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: pluto_grid
       sha256: "3c547952cb73d78eea0cd5e66ef9177e065761783431e3b18d715fb8010f6f3d"
