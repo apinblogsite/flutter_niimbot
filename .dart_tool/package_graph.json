@@ -119,14 +119,15 @@
     },
     {
       "name": "flutter_blue_plus",
-      "version": "1.36.8",
+      "version": "2.2.1",
       "dependencies": [
         "flutter",
         "flutter_blue_plus_android",
         "flutter_blue_plus_darwin",
         "flutter_blue_plus_linux",
         "flutter_blue_plus_platform_interface",
-        "flutter_blue_plus_web"
+        "flutter_blue_plus_web",
+        "flutter_blue_plus_winrt"
       ]
     },
     {
@@ -206,7 +207,7 @@
     },
     {
       "name": "matcher",
-      "version": "0.12.17",
+      "version": "0.12.18",
       "dependencies": [
         "async",
         "meta",
@@ -217,7 +218,7 @@
     },
     {
       "name": "test_api",
-      "version": "0.7.7",
+      "version": "0.7.9",
       "dependencies": [
         "async",
         "boolean_selector",
@@ -338,8 +339,16 @@
       ]
     },
     {
+      "name": "flutter_blue_plus_winrt",
+      "version": "0.0.18",
+      "dependencies": [
+        "flutter",
+        "flutter_blue_plus_platform_interface"
+      ]
+    },
+    {
       "name": "flutter_blue_plus_web",
-      "version": "7.0.2",
+      "version": "8.2.1",
       "dependencies": [
         "flutter",
         "flutter_blue_plus_platform_interface",
@@ -349,7 +358,7 @@
     },
     {
       "name": "flutter_blue_plus_linux",
-      "version": "7.0.3",
+      "version": "8.2.1",
       "dependencies": [
         "bluez",
         "flutter",
@@ -359,7 +368,7 @@
     },
     {
       "name": "flutter_blue_plus_darwin",
-      "version": "7.0.3",
+      "version": "8.2.1",
       "dependencies": [
         "flutter",
         "flutter_blue_plus_platform_interface"
@@ -367,7 +376,7 @@
     },
     {
       "name": "flutter_blue_plus_android",
-      "version": "7.0.4",
+      "version": "8.2.1",
       "dependencies": [
         "flutter",
         "flutter_blue_plus_platform_interface"
@@ -375,7 +384,7 @@
     },
     {
       "name": "flutter_blue_plus_platform_interface",
-      "version": "7.0.0",
+      "version": "8.2.1",
       "dependencies": [
         "flutter"
       ]
@@ -387,14 +396,14 @@
     },
     {
       "name": "material_color_utilities",
-      "version": "0.11.1",
+      "version": "0.13.0",
       "dependencies": [
         "collection"
       ]
     },
     {
       "name": "characters",
-      "version": "1.4.0",
+      "version": "1.4.1",
       "dependencies": []
     },
     {
@@ -444,6 +453,13 @@
       "dependencies": [
         "source_span",
         "string_scanner"
+      ]
+    },
+    {
+      "name": "plugin_platform_interface",
+      "version": "2.1.8",
+      "dependencies": [
+        "meta"
       ]
     },
     {
@@ -523,13 +539,6 @@
       "name": "args",
       "version": "2.7.0",
       "dependencies": []
-    },
-    {
-      "name": "plugin_platform_interface",
-      "version": "2.1.8",
-      "dependencies": [
-        "meta"
-      ]
     }
   ],
   "configVersion": 1

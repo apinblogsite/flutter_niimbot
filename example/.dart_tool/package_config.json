@@ -45,7 +45,7 @@
     },
     {
       "name": "characters",
-      "rootUri": "file:///home/jules/.pub-cache/hosted/pub.dev/characters-1.4.0",
+      "rootUri": "file:///home/jules/.pub-cache/hosted/pub.dev/characters-1.4.1",
       "packageUri": "lib/",
       "languageVersion": "3.4"
     },
@@ -131,43 +131,49 @@
       "name": "flutter",
       "rootUri": "file:///opt/flutter/packages/flutter",
       "packageUri": "lib/",
-      "languageVersion": "3.8"
+      "languageVersion": "3.9"
     },
     {
       "name": "flutter_blue_plus",
-      "rootUri": "file:///home/jules/.pub-cache/hosted/pub.dev/flutter_blue_plus-1.36.8",
+      "rootUri": "file:///home/jules/.pub-cache/hosted/pub.dev/flutter_blue_plus-2.2.1",
       "packageUri": "lib/",
       "languageVersion": "3.0"
     },
     {
       "name": "flutter_blue_plus_android",
-      "rootUri": "file:///home/jules/.pub-cache/hosted/pub.dev/flutter_blue_plus_android-7.0.4",
+      "rootUri": "file:///home/jules/.pub-cache/hosted/pub.dev/flutter_blue_plus_android-8.2.1",
       "packageUri": "lib/",
       "languageVersion": "3.0"
     },
     {
       "name": "flutter_blue_plus_darwin",
-      "rootUri": "file:///home/jules/.pub-cache/hosted/pub.dev/flutter_blue_plus_darwin-7.0.3",
+      "rootUri": "file:///home/jules/.pub-cache/hosted/pub.dev/flutter_blue_plus_darwin-8.2.1",
       "packageUri": "lib/",
       "languageVersion": "3.0"
     },
     {
       "name": "flutter_blue_plus_linux",
-      "rootUri": "file:///home/jules/.pub-cache/hosted/pub.dev/flutter_blue_plus_linux-7.0.3",
+      "rootUri": "file:///home/jules/.pub-cache/hosted/pub.dev/flutter_blue_plus_linux-8.2.1",
       "packageUri": "lib/",
       "languageVersion": "3.0"
     },
     {
       "name": "flutter_blue_plus_platform_interface",
-      "rootUri": "file:///home/jules/.pub-cache/hosted/pub.dev/flutter_blue_plus_platform_interface-7.0.0",
+      "rootUri": "file:///home/jules/.pub-cache/hosted/pub.dev/flutter_blue_plus_platform_interface-8.2.1",
       "packageUri": "lib/",
       "languageVersion": "3.0"
     },
     {
       "name": "flutter_blue_plus_web",
-      "rootUri": "file:///home/jules/.pub-cache/hosted/pub.dev/flutter_blue_plus_web-7.0.2",
+      "rootUri": "file:///home/jules/.pub-cache/hosted/pub.dev/flutter_blue_plus_web-8.2.1",
       "packageUri": "lib/",
       "languageVersion": "3.3"
+    },
+    {
+      "name": "flutter_blue_plus_winrt",
+      "rootUri": "file:///home/jules/.pub-cache/hosted/pub.dev/flutter_blue_plus_winrt-0.0.18",
+      "packageUri": "lib/",
+      "languageVersion": "3.0"
     },
     {
       "name": "flutter_lints",
@@ -185,13 +191,13 @@
       "name": "flutter_test",
       "rootUri": "file:///opt/flutter/packages/flutter_test",
       "packageUri": "lib/",
-      "languageVersion": "3.8"
+      "languageVersion": "3.9"
     },
     {
       "name": "flutter_web_plugins",
       "rootUri": "file:///opt/flutter/packages/flutter_web_plugins",
       "packageUri": "lib/",
-      "languageVersion": "3.8"
+      "languageVersion": "3.9"
     },
     {
       "name": "http",
@@ -243,15 +249,15 @@
     },
     {
       "name": "matcher",
-      "rootUri": "file:///home/jules/.pub-cache/hosted/pub.dev/matcher-0.12.17",
+      "rootUri": "file:///home/jules/.pub-cache/hosted/pub.dev/matcher-0.12.18",
       "packageUri": "lib/",
-      "languageVersion": "3.4"
+      "languageVersion": "3.7"
     },
     {
       "name": "material_color_utilities",
-      "rootUri": "file:///home/jules/.pub-cache/hosted/pub.dev/material_color_utilities-0.11.1",
+      "rootUri": "file:///home/jules/.pub-cache/hosted/pub.dev/material_color_utilities-0.13.0",
       "packageUri": "lib/",
-      "languageVersion": "2.17"
+      "languageVersion": "3.5"
     },
     {
       "name": "meta",
@@ -347,7 +353,7 @@
       "name": "sky_engine",
       "rootUri": "file:///opt/flutter/bin/cache/pkg/sky_engine",
       "packageUri": "lib/",
-      "languageVersion": "3.8"
+      "languageVersion": "3.9"
     },
     {
       "name": "source_span",
@@ -387,9 +393,9 @@
     },
     {
       "name": "test_api",
-      "rootUri": "file:///home/jules/.pub-cache/hosted/pub.dev/test_api-0.7.7",
+      "rootUri": "file:///home/jules/.pub-cache/hosted/pub.dev/test_api-0.7.9",
       "packageUri": "lib/",
-      "languageVersion": "3.5"
+      "languageVersion": "3.7"
     },
     {
       "name": "typed_data",
@@ -429,8 +435,8 @@
     }
   ],
   "generator": "pub",
-  "generatorVersion": "3.10.7",
+  "generatorVersion": "3.11.0",
   "flutterRoot": "file:///opt/flutter",
-  "flutterVersion": "3.38.7",
+  "flutterVersion": "3.41.2",
   "pubCache": "file:///home/jules/.pub-cache"
 }

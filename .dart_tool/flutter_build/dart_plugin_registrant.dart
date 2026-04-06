@@ -10,6 +10,7 @@ import 'package:flutter_blue_plus_android/flutter_blue_plus_android.dart' as flu
 import 'package:flutter_blue_plus_darwin/flutter_blue_plus_darwin.dart' as flutter_blue_plus_darwin;
 import 'package:flutter_blue_plus_linux/flutter_blue_plus_linux.dart' as flutter_blue_plus_linux;
 import 'package:flutter_blue_plus_darwin/flutter_blue_plus_darwin.dart' as flutter_blue_plus_darwin;
+import 'package:flutter_blue_plus_winrt/flutter_blue_plus_winrt.dart' as flutter_blue_plus_winrt;
 
 @pragma('vm:entry-point')
 class _PluginRegistrant {
@@ -57,6 +58,15 @@ class _PluginRegistrant {
       }
 
     } else if (Platform.isWindows) {
+      try {
+        flutter_blue_plus_winrt.FlutterBluePlusWinrt.registerWith();
+      } catch (err) {
+        print(
+          '`flutter_blue_plus_winrt` threw an error: $err. '
+          'The app may not function as expected until you remove this plugin from pubspec.yaml'
+        );
+      }
+
     }
   }
 }
