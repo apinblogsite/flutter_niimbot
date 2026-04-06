@@ -37,10 +37,11 @@ dependencies:
   flutter_niimbot:
     path: ..
   image: ^4.0.17
-  flutter_blue_plus: ^1.30.0
+  flutter_blue_plus: ^2.2.1
   permission_handler: ^10.2.0
   provider: ^6.0.0
   qr: ^3.0.0
+  pluto_grid: ^8.1.0
 
 dev_dependencies:
   flutter_test:
