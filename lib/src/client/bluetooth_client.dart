@@ -297,7 +297,7 @@ class NiimbotBluetoothClient extends NiimbotAbstractClient {
     });
 
     await FlutterBluePlus.startScan(
-      withServices: BleDefaultConfiguration.services.map((s) => Guid(s)).toList(),
+      webOptionalServices: BleDefaultConfiguration.services.map((s) => Guid(s)).toList(),
       timeout: timeout,
     );
     await Future.delayed(timeout);
