@@ -22,7 +22,10 @@ Include the package in your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  flutter_niimbot: ^2.0.0
+  flutter_niimbot:
+  git:
+    url: https://github.com/apinblogsite/flutter_niimbot.git
+    ref: v2.0.3
 ```
 
 Then fetch the dependencies:
