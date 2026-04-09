@@ -14,6 +14,7 @@ extension type JSReadableStreamDefaultReadResult._(JSObject _) implements JSObje
 extension ReadableStreamDefaultReaderExt on ReadableStreamDefaultReader {
   external JSPromise<JSReadableStreamDefaultReadResult> read();
   external void releaseLock();
+  external JSPromise cancel();
 }
 
 @JS()
@@ -31,6 +32,7 @@ extension type WritableStreamDefaultWriterExt(JSObject _) implements WritableStr
 class NiimbotSerialClient extends NiimbotAbstractClient {
   JSSerialPort? _port;
   bool _isConnected = false;
+  ReadableStreamDefaultReader? _reader;
 
   @override
   Future<ConnectionInfo> connect() async {
@@ -83,12 +85,12 @@ class NiimbotSerialClient extends NiimbotAbstractClient {
   void _listenToPort(JSSerialPort port) async {
     try {
       if (port.readable == null) return;
-      final reader = port.readable!.getReader() as ReadableStreamDefaultReader;
+      _reader = port.readable!.getReader() as ReadableStreamDefaultReader;
       while (_isConnected) {
-        final promise = reader.read();
+        final promise = _reader!.read();
         final result = await promise.toDart;
         if (result.done) {
-          reader.releaseLock();
+          _reader!.releaseLock();
           break;
         }
         final data = result.value;
@@ -100,6 +102,7 @@ class NiimbotSerialClient extends NiimbotAbstractClient {
     } catch (e) {
       if (debug) print('Serial read error: $e');
     } finally {
+      _reader = null;
       await disconnect();
     }
   }
@@ -110,6 +113,13 @@ class NiimbotSerialClient extends NiimbotAbstractClient {
     try {
       stopHeartbeat();
       _isConnected = false;
+
+      // Cancel the reader to release the lock
+      if (_reader != null) {
+        try {
+          await _reader!.cancel().toDart;
+        } catch (_) {}
+      }
 
       // Close port
       await _port!.close().toDart;
