@@ -8,7 +8,7 @@ import '../packets/payloads.dart';
 
 extension type JSReadableStreamDefaultReadResult._(JSObject _) implements JSObject {
   external bool get done;
-  external JSObject? get value; // Workaround for JSUint8Array toDart issue
+  external JSObject? get value;
 }
 
 extension ReadableStreamDefaultReaderExt on ReadableStreamDefaultReader {
@@ -19,10 +19,10 @@ extension ReadableStreamDefaultReaderExt on ReadableStreamDefaultReader {
 @JS()
 extension type WritableStreamDefaultWriterExt(JSObject _) implements WritableStreamDefaultWriter {
   @JS('write')
-  external JSPromise<JSAny?> _write(JSUint8Array data);
+  external JSPromise _write(JSUint8Array data);
 
   Future<void> writeData(JSUint8Array data) async {
-    _write(data);
+    await _write(data).toDart;
   }
 
   external void releaseLock();

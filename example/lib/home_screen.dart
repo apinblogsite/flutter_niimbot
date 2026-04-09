@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter/foundation.dart';
 import 'printer_controller.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -141,7 +142,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       Expanded(
                         child: Text(
                           controller.isConnected
-                              ? "Connected: ${controller.connectedDevice?.platformName}"
+                              ? "Connected: ${controller.connectedDeviceName}"
                               : "Disconnected",
                           style: const TextStyle(fontWeight: FontWeight.bold),
                           overflow: TextOverflow.ellipsis,
@@ -156,12 +157,20 @@ class _HomeScreenState extends State<HomeScreen> {
                     onPressed: controller.disconnect,
                     child: const Text("Disconnect"),
                   )
-                else
+                else ...[
+                  if (kIsWeb)
+                    TextButton.icon(
+                      icon: const Icon(Icons.usb),
+                      onPressed: controller.connectSerial,
+                      label: const Text("Serial Web"),
+                    ),
+                  const SizedBox(width: 8),
                   FilledButton.tonal(
                     onPressed:
                         controller.isScanning ? null : controller.startScan,
-                    child: Text(controller.isScanning ? "Scanning..." : "Scan"),
+                    child: Text(controller.isScanning ? "Scanning BLE..." : "Scan BLE"),
                   ),
+                ],
               ],
             ),
             if (!controller.isConnected &&
@@ -183,7 +192,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       title: Text(name),
                       subtitle: Text(d.remoteId.toString()),
                       trailing: const Icon(Icons.chevron_right),
-                      onTap: () => controller.connect(d),
+                      onTap: () => controller.connectBluetooth(d),
                     );
                   },
                 ),

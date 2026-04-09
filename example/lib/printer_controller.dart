@@ -5,29 +5,33 @@ import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 
 class PrinterController extends ChangeNotifier {
   List<BluetoothDevice> _devices = [];
-  BluetoothDevice? _connectedDevice;
-  final NiimbotBluetoothClient _client = NiimbotBluetoothClient();
+  String? _connectedDeviceName;
+  NiimbotAbstractClient? _client;
   bool _isScanning = false;
   String _log = "";
+  StreamSubscription? _disconnectSub;
 
   List<BluetoothDevice> get devices => _devices;
-  BluetoothDevice? get connectedDevice => _connectedDevice;
+  String? get connectedDeviceName => _connectedDeviceName;
   bool get isScanning => _isScanning;
   String get log => _log;
-  bool get isConnected => _connectedDevice != null && _client.isConnected();
+  bool get isConnected => _connectedDeviceName != null && (_client?.isConnected() ?? false);
 
-  PrinterController() {
-    _client.on(ClientEvents.disconnected).listen((_) {
-      _connectedDevice = null;
-      _logMsg("Disconnected");
-      notifyListeners();
-    });
-  }
+  PrinterController();
 
   void _logMsg(String msg) {
     _log += "$msg\n";
     print(msg);
     notifyListeners();
+  }
+
+  void _setupClientListeners(NiimbotAbstractClient client) {
+    _disconnectSub?.cancel();
+    _disconnectSub = client.on(ClientEvents.disconnected).listen((_) {
+      _connectedDeviceName = null;
+      _logMsg("Disconnected");
+      notifyListeners();
+    });
   }
 
   Future<void> startScan() async {
@@ -49,14 +53,18 @@ class PrinterController extends ChangeNotifier {
     }
   }
 
-  Future<void> connect(BluetoothDevice device) async {
+  Future<void> connectBluetooth(BluetoothDevice device) async {
     try {
-      _logMsg("Connecting to ${device.platformName}...");
-      _client.setDevice(device);
-      final info = await _client.connect();
+      _logMsg("Connecting to ${device.platformName} via Bluetooth...");
+      final bleClient = NiimbotBluetoothClient();
+      bleClient.setDevice(device);
+      _client = bleClient;
+      _setupClientListeners(bleClient);
+
+      final info = await bleClient.connect();
 
       if (info.result == ConnectResult.connected) {
-        _connectedDevice = device;
+        _connectedDeviceName = device.platformName;
         _logMsg("Connected!");
       } else {
         _logMsg("Connection refused or failed.");
@@ -64,21 +72,49 @@ class PrinterController extends ChangeNotifier {
       notifyListeners();
     } catch (e) {
       _logMsg("Connect failed: $e");
-      _connectedDevice = null;
+      _connectedDeviceName = null;
+      notifyListeners();
+    }
+  }
+
+  Future<void> connectSerial() async {
+    try {
+      if (!await NiimbotSerialClient.isAvailable()) {
+        _logMsg("Web Serial API is not available on this platform or browser.");
+        return;
+      }
+
+      _logMsg("Requesting Web Serial port...");
+      final serialClient = NiimbotSerialClient();
+      _client = serialClient;
+      _setupClientListeners(serialClient);
+
+      final info = await serialClient.connect();
+
+      if (info.result == ConnectResult.connected) {
+        _connectedDeviceName = info.deviceName;
+        _logMsg("Connected to Serial!");
+      } else {
+        _logMsg("Connection refused or failed.");
+      }
+      notifyListeners();
+    } catch (e) {
+      _logMsg("Serial connect failed: $e");
+      _connectedDeviceName = null;
       notifyListeners();
     }
   }
 
   Future<void> disconnect() async {
     try {
-      await _client.disconnect();
+      await _client?.disconnect();
     } catch (e) {
       _logMsg("Disconnect failed: $e");
     }
   }
 
   Future<void> printLabel(String id, String keterangan) async {
-    if (!isConnected) {
+    if (!isConnected || _client == null) {
       _logMsg("Not connected to any printer");
       return;
     }
@@ -86,10 +122,10 @@ class PrinterController extends ChangeNotifier {
     try {
       _logMsg("Generating label for ID: $id");
 
-      _client.stopHeartbeat();
-      _client.setPacketInterval(0); // Fast printing
+      _client!.stopHeartbeat();
+      _client!.setPacketInterval(0); // Fast printing
 
-      final task = _client.createPrintTask(PrintOptions(
+      final task = _client!.createPrintTask(PrintOptions(
         totalPages: 1,
         density: 3,
         labelType: LabelType.withGaps,
@@ -137,16 +173,17 @@ class PrinterController extends ChangeNotifier {
       await task.waitForFinished();
       _logMsg("Print Done!");
 
-      _client.startHeartbeat();
+      _client!.startHeartbeat();
     } catch (e) {
       _logMsg("Print error: $e");
-      _client.startHeartbeat(); // Recover heartbeat on error
+      _client!.startHeartbeat(); // Recover heartbeat on error
     }
   }
 
   @override
   void dispose() {
-    _client.dispose();
+    _disconnectSub?.cancel();
+    _client?.dispose();
     super.dispose();
   }
 }
