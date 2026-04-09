@@ -70,11 +70,6 @@ class NiimbotSerialClient extends NiimbotAbstractClient {
       emit(ClientEvents.connected, connectionInfo);
       return connectionInfo;
     } catch (e) {
-      if (_port != null) {
-        try {
-          await _port!.close().toDart;
-        } catch (_) {}
-      }
       _isConnected = false;
       rethrow;
     }

@@ -63,9 +63,7 @@ class PrinterController extends ChangeNotifier {
 
       final info = await bleClient.connect();
 
-      if (info.result == ConnectResult.connected ||
-          info.result == ConnectResult.connectedNew ||
-          info.result == ConnectResult.connectedV3) {
+      if (info.result == ConnectResult.connected) {
         _connectedDeviceName = device.platformName;
         _logMsg("Connected!");
       } else {
@@ -93,9 +91,7 @@ class PrinterController extends ChangeNotifier {
 
       final info = await serialClient.connect();
 
-      if (info.result == ConnectResult.connected ||
-          info.result == ConnectResult.connectedNew ||
-          info.result == ConnectResult.connectedV3) {
+      if (info.result == ConnectResult.connected) {
         _connectedDeviceName = info.deviceName;
         _logMsg("Connected to Serial!");
       } else {
