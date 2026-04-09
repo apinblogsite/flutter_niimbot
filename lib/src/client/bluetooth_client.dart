@@ -101,7 +101,17 @@ class NiimbotBluetoothClient extends NiimbotAbstractClient {
         throw Exception('Notify characteristic not found');
       }
 
-      await _notifyCharacteristic!.setNotifyValue(true);
+      // Use shorter timeout or remove it if web handles it differently.
+      // But we can catch and ignore the timeout exception if notifications are actually enabled.
+      try {
+        await _notifyCharacteristic!.setNotifyValue(true, timeout: 5);
+      } catch (e) {
+        if (e.toString().contains('Timed out')) {
+          if (debug) print('setNotifyValue timed out, but continuing...');
+        } else {
+          rethrow;
+        }
+      }
       if (debug) print('Notifications enabled');
 
       _notifySubscription =
