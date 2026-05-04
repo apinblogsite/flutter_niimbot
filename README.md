@@ -22,7 +22,10 @@ Include the package in your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  flutter_niimbot: ^2.0.0
+  flutter_niimbot:
+    git:
+      url: https://github.com/apinblogsite/flutter_niimbot.git
+      ref: v2.0.3
 ```
 
 Then fetch the dependencies:
@@ -79,9 +82,15 @@ Don't forget to install the iOS pods:
 cd ios && pod install
 ```
 
+### Web Setup
+
+If you are deploying to the web, `flutter_niimbot` supports Web Bluetooth (for wireless connections) and the **Web Serial API** (for USB connections).
+
+> **Note:** The Web Serial API is currently only supported on Chromium-based browsers (Chrome, Edge, Opera).
+
 ## 🚀 Getting Started
 
-### Your First Print Job
+### Your First Print Job (Bluetooth)
 
 ```dart
 import 'package:flutter_niimbot/flutter_niimbot.dart';
@@ -121,6 +130,34 @@ await task.waitForFinished();
 
 // Resume heartbeat monitoring after printing
 client.startHeartbeat();
+```
+
+### Printing via Web Serial (USB)
+
+When running on the web, you can prompt the user to connect their printer via a physical USB cable using the `NiimbotSerialClient`.
+
+```dart
+import 'package:flutter/foundation.dart';
+import 'package:flutter_niimbot/flutter_niimbot.dart';
+
+// Check if the Web Serial API is supported in the current browser
+if (kIsWeb && await NiimbotSerialClient.isAvailable()) {
+  final serialClient = NiimbotSerialClient();
+
+  // This will prompt the browser's native serial port selection dialog
+  final info = await serialClient.connect();
+
+  if (info.result == ConnectResult.connected ||
+      info.result == ConnectResult.connectedNew ||
+      info.result == ConnectResult.connectedV3) {
+
+    print("Successfully connected via Web Serial!");
+
+    // Now you can create a print task and draw the label just like the Bluetooth client
+    final task = serialClient.createPrintTask(...);
+    // ...
+  }
+}
 ```
 
 ## 🚀 Batch Printing & Third-Party Integrations
