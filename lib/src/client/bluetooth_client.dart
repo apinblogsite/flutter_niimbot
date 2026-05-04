@@ -8,7 +8,10 @@ import '../printer_models.dart';
 
 /// Default BLE configuration for NIIMBOT printers
 class BleDefaultConfiguration {
-  static const List<String> services = ['e7810a71-73ae-499d-8c15-faa9aef0c3f2'];
+  static const List<String> services = [
+    'e7810a71-73ae-499d-8c15-faa9aef0c3f2',
+    '0000ae30-0000-1000-8000-00805f9b34fb',
+  ];
   static final List<String> nameFilters = getAllModelPrefixes();
 }
 
@@ -78,10 +81,11 @@ class NiimbotBluetoothClient extends NiimbotAbstractClient {
 
       final services = await _device!.discoverServices();
 
+      final serviceUuidsLower = BleDefaultConfiguration.services
+          .map((u) => u.toLowerCase())
+          .toList();
       final niimbotService = services.firstWhere(
-        (s) =>
-            s.uuid.toString().toLowerCase() ==
-            BleDefaultConfiguration.services[0].toLowerCase(),
+        (s) => serviceUuidsLower.contains(s.uuid.toString().toLowerCase()),
         orElse: () => throw Exception('NIIMBOT service not found'),
       );
 
