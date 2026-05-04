@@ -1,0 +1,11 @@
+
+# Generated files
+.dart_tool/
+build/
+.flutter-plugins-dependencies
+pubspec.lock
+example/pubspec.lock
+example/.dart_tool/
+build/
+.dart_tool/
+example/.dart_tool/

@@ -1,43 +1,23 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_niimbot/flutter_niimbot.dart';
-import 'package:image/image.dart' as img;
-import 'package:flutter_niimbot/image_encoder.dart';
-import 'package:flutter_niimbot/print_tasks/b1_print_task.dart';
-import 'package:flutter_niimbot/packets/packet_generator.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
-import 'package:permission_handler/permission_handler.dart';
-import 'package:qr/qr.dart';
 
 class PrinterController extends ChangeNotifier {
-  List<ScanResult> _devices = [];
-  String? _connectedDeviceId;
+  List<BluetoothDevice> _devices = [];
+  String? _connectedDeviceName;
+  NiimbotAbstractClient? _client;
   bool _isScanning = false;
   String _log = "";
-  StreamSubscription? _scanSub;
-  StreamSubscription? _packetSub;
+  StreamSubscription? _disconnectSub;
 
-  List<ScanResult> get devices => _devices;
-  String? get connectedDeviceId => _connectedDeviceId;
+  List<BluetoothDevice> get devices => _devices;
+  String? get connectedDeviceName => _connectedDeviceName;
   bool get isScanning => _isScanning;
   String get log => _log;
-  bool get isConnected => _connectedDeviceId != null;
+  bool get isConnected => _connectedDeviceName != null && (_client?.isConnected() ?? false);
 
-  PrinterController() {
-    _requestPermissions();
-  }
-
-  Future<void> _requestPermissions() async {
-    Map<Permission, PermissionStatus> statuses = await [
-      Permission.location,
-      Permission.bluetoothScan,
-      Permission.bluetoothConnect,
-    ].request();
-
-    if (statuses[Permission.bluetoothScan]?.isDenied ?? false) {
-      _logMsg("Bluetooth Scan denied");
-    }
-  }
+  PrinterController();
 
   void _logMsg(String msg) {
     _log += "$msg\n";
@@ -45,84 +25,100 @@ class PrinterController extends ChangeNotifier {
     notifyListeners();
   }
 
+  void _setupClientListeners(NiimbotAbstractClient client) {
+    _disconnectSub?.cancel();
+    _disconnectSub = client.on(ClientEvents.disconnected).listen((_) {
+      _connectedDeviceName = null;
+      _logMsg("Disconnected");
+      notifyListeners();
+    });
+  }
+
   Future<void> startScan() async {
     if (_isScanning) return;
-
     _isScanning = true;
     _devices = [];
     notifyListeners();
 
     try {
-      await _scanSub?.cancel();
-
-      _scanSub = Niimbot.scanResults.listen((results) {
-        _devices = results;
-        notifyListeners();
-      });
-
-      await Niimbot.startScan();
       _logMsg("Scanning started...");
-
-      // Auto stop scanning after 10 seconds to save battery/resources
-      Future.delayed(const Duration(seconds: 10), () {
-        if (_isScanning) {
-          stopScan();
-        }
-      });
-
+      _devices = await NiimbotBluetoothClient.listDevices(
+          timeout: const Duration(seconds: 10));
+      _logMsg("Found ${_devices.length} devices.");
     } catch (e) {
       _logMsg("Scan failed: $e");
+    } finally {
       _isScanning = false;
       notifyListeners();
     }
   }
 
-  Future<void> stopScan() async {
-     _isScanning = false;
-     notifyListeners();
-  }
-
-  Future<void> connect(String deviceId) async {
+  Future<void> connectBluetooth(BluetoothDevice device) async {
     try {
-      _logMsg("Connecting to $deviceId...");
-      _isScanning = false;
+      _logMsg("Connecting to ${device.platformName} via Bluetooth...");
+      final bleClient = NiimbotBluetoothClient();
+      bleClient.setDevice(device);
+      _client = bleClient;
+      _setupClientListeners(bleClient);
+
+      final info = await bleClient.connect();
+
+      if (info.result == ConnectResult.connected ||
+          info.result == ConnectResult.connectedNew ||
+          info.result == ConnectResult.connectedV3) {
+        _connectedDeviceName = device.platformName;
+        _logMsg("Connected!");
+      } else {
+        _logMsg("Connection refused or failed.");
+      }
       notifyListeners();
-
-      await Niimbot.connect(deviceId);
-
-      _logMsg("Sending Connect Packet...");
-      await PacketGenerator.connect(Niimbot.sendPacket);
-
-      _connectedDeviceId = deviceId;
-      _logMsg("Connected!");
-
-       _packetSub = Niimbot.packets.listen((p) {
-        // _logMsg("Rx Cmd: ${p['cmd']}");
-      });
-
-      notifyListeners();
-
     } catch (e) {
       _logMsg("Connect failed: $e");
-      _connectedDeviceId = null;
+      _connectedDeviceName = null;
+      notifyListeners();
+    }
+  }
+
+  Future<void> connectSerial() async {
+    try {
+      if (!await NiimbotSerialClient.isAvailable()) {
+        _logMsg("Web Serial API is not available on this platform or browser.");
+        return;
+      }
+
+      _logMsg("Requesting Web Serial port...");
+      final serialClient = NiimbotSerialClient();
+      _client = serialClient;
+      _setupClientListeners(serialClient);
+
+      final info = await serialClient.connect();
+
+      if (info.result == ConnectResult.connected ||
+          info.result == ConnectResult.connectedNew ||
+          info.result == ConnectResult.connectedV3) {
+        _connectedDeviceName = info.deviceName;
+        _logMsg("Connected to Serial!");
+      } else {
+        _logMsg("Connection refused or failed.");
+      }
+      notifyListeners();
+    } catch (e) {
+      _logMsg("Serial connect failed: $e");
+      _connectedDeviceName = null;
       notifyListeners();
     }
   }
 
   Future<void> disconnect() async {
     try {
-      await Niimbot.disconnect();
-      _connectedDeviceId = null;
-      _packetSub?.cancel();
-      _logMsg("Disconnected");
-      notifyListeners();
+      await _client?.disconnect();
     } catch (e) {
       _logMsg("Disconnect failed: $e");
     }
   }
 
   Future<void> printLabel(String id, String keterangan) async {
-    if (_connectedDeviceId == null) {
+    if (!isConnected || _client == null) {
       _logMsg("Not connected to any printer");
       return;
     }
@@ -130,101 +126,68 @@ class PrinterController extends ChangeNotifier {
     try {
       _logMsg("Generating label for ID: $id");
 
-      final int width = 384;
-      final int height = 240;
+      _client!.stopHeartbeat();
+      _client!.setPacketInterval(0); // Fast printing
 
-      final image = img.Image(width: width, height: height);
-      img.fill(image, color: img.ColorRgb8(255, 255, 255));
+      final task = _client!.createPrintTask(PrintOptions(
+        totalPages: 1,
+        density: 3,
+        labelType: LabelType.withGaps,
+      ));
 
-      // 1. Generate QR Code
-      final qrCode = QrCode(4, QrErrorCorrectLevel.L);
-      qrCode.addData(id);
-
-      final qrImage = QrImage(qrCode);
-
-      final int qrSize = 150;
-      final int moduleSize = (qrSize / qrImage.moduleCount).floor();
-      final int qrX = 10;
-      final int qrY = (height - (qrImage.moduleCount * moduleSize)) ~/ 2;
-
-      for (int x = 0; x < qrImage.moduleCount; x++) {
-        for (int y = 0; y < qrImage.moduleCount; y++) {
-          if (qrImage.isDark(y, x)) {
-             img.fillRect(
-               image,
-               x1: qrX + x * moduleSize,
-               y1: qrY + y * moduleSize,
-               x2: qrX + (x + 1) * moduleSize,
-               y2: qrY + (y + 1) * moduleSize,
-               color: img.ColorRgb8(0, 0, 0)
-             );
-          }
-        }
+      if (task == null) {
+        throw Exception('Printer model not detected');
       }
 
-      // 2. Draw Text
-      final int textX = qrX + (qrImage.moduleCount * moduleSize) + 20;
-      int textY = 50;
+      final page = PrintPage(400, 240); // width x height in pixels
 
-      // Draw ID
-      img.drawString(
-        image,
-        "ID: $id",
-        font: img.arial24,
-        x: textX,
-        y: textY,
-        color: img.ColorRgb8(0, 0, 0)
-      );
+      // Draw Text ID
+      page.addText(
+          'ID: $id',
+          TextOptions(
+            x: 10,
+            y: 30,
+            fontSize: 32,
+            fontWeight: FontWeight.bold,
+          ));
 
-      textY += 40;
+      // Draw QR Code
+      page.addQR(
+          id,
+          QROptions(
+            x: 10,
+            y: 80,
+            width: 140,
+            height: 140,
+            ecl: QRErrorCorrection.medium,
+          ));
 
-      // Draw Keterangan
-      // Simple word wrap
-      List<String> words = keterangan.split(' ');
-      String line = "";
-      for (var word in words) {
-        if ((line + word).length * 12 > (width - textX)) { // rough char width estimation
-          img.drawString(
-            image,
-            line,
-            font: img.arial24,
-            x: textX,
-            y: textY,
-            color: img.ColorRgb8(0, 0, 0)
-          );
-          line = "";
-          textY += 30;
-        }
-        line += "$word ";
-      }
-      if (line.isNotEmpty) {
-        img.drawString(
-            image,
-            line,
-            font: img.arial24,
-            x: textX,
-            y: textY,
-            color: img.ColorRgb8(0, 0, 0)
-          );
-      }
-
-      _logMsg("Encoding...");
-      final encoded = ImageEncoder.encode(image);
+      // Draw Keterangan (Simple Word Wrap emulation for Canvas)
+      page.addText(
+          keterangan,
+          TextOptions(
+            x: 160,
+            y: 100,
+            fontSize: 24,
+          ));
 
       _logMsg("Printing...");
-      final task = B1PrintTask();
-      await task.print(encoded, 1);
+      await task.printInit();
+      await task.printPage(page.toEncodedImage(), 1);
+      await task.waitForFinished();
       _logMsg("Print Done!");
 
+      _client!.startHeartbeat();
     } catch (e) {
       _logMsg("Print error: $e");
+      _client!.startHeartbeat(); // Recover heartbeat on error
     }
   }
 
   @override
   void dispose() {
-    _scanSub?.cancel();
-    _packetSub?.cancel();
+    _disconnectSub?.cancel();
+    _client?.dispose();
     super.dispose();
   }
 }
